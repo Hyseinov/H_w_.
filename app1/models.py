@@ -13,8 +13,8 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    text = models.TextField(verbose_name="комент")
-    post = models.ForeignKey(Post, null=True, on_delete=models.CASCADE)
+    text = models.TextField(verbose_name="comment")
+    post = models.ForeignKey(Post, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.text

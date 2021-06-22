@@ -1,7 +1,8 @@
 from rest_framework.decorators import api_view
 # Create your views here.
-from app1.models import Post, Comment
 from rest_framework.exceptions import NotFound
+
+from app1.models import Post, Comment
 from rest_framework.response import Response
 from app1.serializers import PostListSerializer, CommentListSerializer
 

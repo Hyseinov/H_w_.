@@ -1,17 +1,34 @@
+from rest_framework import status
 from rest_framework.decorators import api_view
 # Create your views here.
 from rest_framework.exceptions import NotFound
 
 from app1.models import Post, Comment
 from rest_framework.response import Response
-from app1.serializers import PostListSerializer, CommentListSerializer
+from app1.serializers import PostListSerializer, CommentListSerializer, CommentsValidateSerializer, \
+    PostsValidateSerializer
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def post_list_views(request):
-    posts = Post.objects.all()
-    data = PostListSerializer(posts, many=True).data
-    return Response(data={'list': data})
+
+    if request.method == "POST":
+
+        serializer = PostsValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+                data={
+                    'message': 'ERROR',
+                    'errors': serializer.errors
+                }
+            )
+        post = Post.objects.create(title=request.data["title"], text=request.data["text"])
+        return Response(data={'message': 'created'})
+    else:
+        posts = Post.objects.all()
+        data = PostListSerializer(posts, many=True).data
+        return Response(data={'list': data})
 
 
 @api_view(['GET'])
@@ -31,11 +48,28 @@ def comment_list_view(request):
     return Response(data={'list': data})
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def comment_item_view(request, id):
-    try:
-        comment = Comment.objects.get(id=id)
-    except Comment.DoesNotExist:
-        raise NotFound('Ни-фи-га')
-    data = CommentListSerializer(comment, many=False).data
-    return Response(data=data)
+    if request.method == "POST":
+
+        serializer = CommentsValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(
+                status=status.HTTP_406_NOT_ACCEPTABLE,
+                data={
+                    'message': 'ERROR',
+                    'errors': serializer.errors
+                }
+            )
+        post = Post.objects.get(id=id)
+        text = request.data.get('comment', '')
+        Comment.objects.create(text=text, post_id=post.id)
+        return Response(data={'message': 'created'})
+    else:
+        try:
+            comment = Comment.objects.get(id=id)
+        except Comment.DoesNotExist:
+            raise NotFound('Ни-фи-га')
+        data = CommentListSerializer(comment, many=False).data
+        return Response(data=data)
+

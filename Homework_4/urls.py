@@ -17,9 +17,14 @@ from django.contrib import admin
 from django.urls import path
 from app1 import views
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/v1/posts/', views.post_list_views),
     path('api/v1/posts/<int:id>/', views.post_item_view),
     path('api/v1/posts/<int:id>/comments/', views.comment_item_view),
+    path('api/v1/login/', views.login),
+    path('api/v1/register/', views.register),
+
 ]
+
